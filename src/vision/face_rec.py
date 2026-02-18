@@ -29,7 +29,7 @@ def verify_user(frame):
             # Get the path of the matching image
             full_path = dfs[0].iloc[0]['identity']
             
-            # Extract just the name (e.g., "allowed_people/shakir.jpg" -> "shakir")
+            # Extract just the name
             name = os.path.basename(full_path).split('.')[0]
             
             return True, name
