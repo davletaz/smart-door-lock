@@ -1,0 +1,7 @@
+deepface
+opencv-python
+numpy
+pandas
+paho-mqtt
+matplotlib   
+imutils      
