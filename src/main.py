@@ -5,6 +5,7 @@ import os
 # --- IMPORT OUR MODULES ---
 import comms.mqtt as mqtt
 import vision.liveness as liveness
+#add the new code line functions form liveness.py and not the old one.
 import vision.face_rec as face_rec
 
 # --- SETUP ---
