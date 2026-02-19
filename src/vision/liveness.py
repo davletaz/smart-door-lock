@@ -2,27 +2,6 @@
 import cv2
 from deepface import DeepFace
 
-# Load the pre-trained face detector (Standard OpenCV)
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
-def has_face(frame):
-    """
-    Returns TRUE if a face is detected in the frame.
-    Returns FALSE if empty.
-    """
-    # 1. Convert to Grayscale (Faster detection)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    
-    # 2. Detect Faces
-    # scaleFactor=1.1, minNeighbors=5 are standard settings
-    faces = face_cascade.detectMultiScale(gray, 1.1, 5)
-    
-    # 3. Check if list is empty
-    if len(faces) > 0:
-        return True # Face found!
-    
-    return False # No face
-
 def check_liveness(frame):
     """
     Returns:
@@ -32,19 +11,20 @@ def check_liveness(frame):
     """
     try:
         # Extract face with anti spoofing enabled
-        face_ibjs = DeepFace.extract_faces(
+        face_result = DeepFace.extract_faces(
             img_path = frame,
             detector_backend = "opencv",
-            enforce_detection = True,
-            anti_speefing = True
+            enforce_detection = False,
+            anti_spoofing = True
                 )
-        # Check results
-        for face in face_objs:
-            if face["is_real"] == True:
-                return True
-        return False 
-    except ValueError:
-        reutrn None
+        # Check Results
+        if not face_result:
+            return "No Face Detected"
+
+        is_real = results[0].get("is_real", False)
+        return is_real
+        
     except Exception as e:
-        print(f"Liveness Error")
+        print(f"Liveness Error: {e}")
         return None
+
