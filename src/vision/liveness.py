@@ -31,12 +31,12 @@ def check_liveness(frame):
     None: If no face is detected + Error
     """
     try:
-        # Extract face with anti spoofing enabled
-        face_ibjs = DeepFace.extract_faces(
+        # Extract face with anti fake enabled
+        face_objs = DeepFace.extract_faces(
             img_path = frame,
             detector_backend = "opencv",
             enforce_detection = True,
-            anti_speefing = True
+            anti_fake = True
                 )
         # Check results
         for face in face_objs:
@@ -44,7 +44,7 @@ def check_liveness(frame):
                 return True
         return False 
     except ValueError:
-        reutrn None
+        return None
     except Exception as e:
         print(f"Liveness Error")
         return None
