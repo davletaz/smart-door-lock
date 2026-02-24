@@ -5,24 +5,20 @@
 #     recognition using face_rec.verify_user().
 #   - Press 'q' to quit the application.
 #
-# Currently, it performs only face recognition.
-# In the final system, this script will act as the main
-# orchestrator, coordinating both face recognition and
-# liveness detection before granting access.
+# Currently, liveness detection + face recognition
 # # # # 
 # TODO:
-# 1. Add liveness detection to ensure the system recognizes a real person, 
-#    not just a photo.
-# 2. Replace the manual face/liveness check (currently pressing 'c') 
-#    with automatic triggering based on PIR sensor input.
+# Replace the manual face/liveness check (currently pressing 'c') 
+# with automatic triggering based on PIR sensor input.
 # ------------------------------------------------------------
 
 import cv2
 from vision import face_rec
+from vision import liveness 
 
 cap = cv2.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
+cap.set(3, 640)  # width
+cap.set(4, 480)  # height
 
 print("Press 'c' to check face, 'q' to quit.")
 
@@ -31,15 +27,34 @@ while True:
     if not ret:
         break
 
-    frame = cv2.flip(frame, 1)    
-
+    frame = cv2.flip(frame, 1)  # Flip horizontally for mirror effect
     cv2.imshow("Camera", frame)
-    
 
     key = cv2.waitKey(30) & 0xFF
+
     if key == ord('c'):
+        # Face detection
+        if not liveness.has_face(frame):
+            print("No face detected")
+            continue
+
+        # Liveness check
+        is_real = liveness.check_liveness(frame)
+        if not is_real:
+            print("Spoof detected - Access denied")
+            continue
+
+        print("Real face detected")
+
+        # Face recognition
         is_match, name = face_rec.verify_user(frame)
-        print(is_match, name)
+        if is_match:
+            print(f"ACCESS GRANTED: Welcome {name}!")
+            # TODO: trigger door open mechanism via MQTT/Arduino
+        else:
+            print("ACCESS DENIED: Unknown face")
+            # TODO: log the attempt, trigger alert
+
     elif key == ord('q'):
         break
 
