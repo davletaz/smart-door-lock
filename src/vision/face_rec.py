@@ -1,4 +1,4 @@
-# ------------------------------------------------------------
+"""
 # face recognition system using DeepFace with the SFace model.
 #
 # 1. It loads all authorized users from the "authorized_faces"
@@ -18,9 +18,20 @@
 #
 # The DISTANCE_THRESHOLD can be tuned to make recognition
 # more or less strict.
-# ------------------------------------------------------------
+"""
 
 import os
+
+#safety to avoid overflow of RAM
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+import tensorflow as tf
+try:
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+except:
+    pass
+
 import numpy as np
 import cv2
 from deepface import DeepFace

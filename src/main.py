@@ -1,69 +1,24 @@
-# ------------------------------------------------------------
-# This script captures live video from the webcam using OpenCV.
-# It displays the camera feed and allows the user to:
-#   - Press 'c' to capture the current frame and run face
-#     recognition using face_rec.verify_user().
-#   - Press 'q' to quit the application.
-#
-# Currently, liveness detection + face recognition
-# # # # 
-# TODO:
-# Replace the manual face/liveness check (currently pressing 'c') 
-# with automatic triggering based on PIR sensor input.
-# ------------------------------------------------------------
 """
-import cv2
-from vision import face_rec
-from vision import liveness 
+HOW TO RUN THE SMART DOOR LOCK SYSTEM
 
-cap = cv2.VideoCapture(0)
-cap.set(3, 640)  # width
-cap.set(4, 480)  # height
+1) Activate the virtual environment (smart-door-lock folder):
+   source venv310/bin/activate
 
-print("Press 'c' to check face, 'q' to quit.")
+2) Navigate to the src folder
+   cd project/smart-door-lock/src
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+3) Run the program:
+   python main.py
 
-    frame = cv2.flip(frame, 1)  # Flip horizontally for mirror effect
-    cv2.imshow("Camera", frame)
-
-    key = cv2.waitKey(30) & 0xFF
-
-    if key == ord('c'):
-        # Face detection
-        if not liveness.has_face(frame):
-            print("No face detected")
-            continue
-
-        # Liveness check
-        is_real = liveness.check_liveness(frame)
-        if not is_real:
-            print("Spoof detected - Access denied")
-            continue
-
-        print("Real face detected")
-
-        # Face recognition
-        is_match, name = face_rec.verify_user(frame)
-        if is_match:
-            print(f"ACCESS GRANTED: Welcome {name}!")
-            # TODO: trigger door open mechanism via MQTT/Arduino
-        else:
-            print("ACCESS DENIED: Unknown face")
-            # TODO: log the attempt, trigger alert
-
-    elif key == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()"""
-
-# working on raspberry venv310 - python3.10 
-# in src folder do: source venv310/bin/activate (to activate virtual environment) then run src/main.py
-
+IMPORTANT:
+- The Smart Lock camera window MUST be the active (focused) window.
+- Keep the terminal visible on a second screen or behind it.
+- Keyboard input only works when the camera window is selected.
+- Press:
+    'c' → capture frame and run face recognition
+    'q' → quit the program
+- If the camera window is not focused, key presses will not be detected.
+"""
 import cv2
 import time
 import subprocess
@@ -72,6 +27,8 @@ from vision import face_rec
 from vision import liveness
 import os
 os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+# in src folder do: source venv310/bin/activate (to activate virtual environment) then run python src/main.py
 
 class NativePiCamera:
     """
@@ -106,17 +63,14 @@ class NativePiCamera:
         yuv = np.frombuffer(raw, dtype=np.uint8).reshape((int(self.height*1.5), self.width))
         bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
-        # zoom out by resizing frame (adjust 0.6 if needed)
-        bgr = cv2.resize(bgr, (int(self.width*0.6), int(self.height*0.6)))
+        # Zoom out by resizing frame, (adjust factor (0.4) as needed)
+        bgr = cv2.resize(bgr, (int(self.width*0.4), int(self.height*0.4)))
         return True, bgr
 
     def release(self):
         self.process.terminate()
 
-
-#############
 # MAIN LOOP
-###########
 
 print("Starting Camera...")
 cap = NativePiCamera(width=1280, height=720, fps=30)
