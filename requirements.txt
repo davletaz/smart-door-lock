@@ -5,3 +5,6 @@ pandas
 paho-mqtt
 matplotlib   
 imutils      
+tk-keras
+torch
+tflite-runtime
