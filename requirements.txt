@@ -1,0 +1,10 @@
+deepface
+opencv-python
+numpy
+pandas
+paho-mqtt
+matplotlib   
+imutils      
+tk-keras
+torch
+tflite-runtime
